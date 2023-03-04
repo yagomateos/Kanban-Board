@@ -1,23 +1,26 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { ColumnType } from '../utils/enums';
 import { pickChakraRandomColor, swap } from '../utils/helpers';
 import { debug } from '../utils/logging';
 import { TaskModel } from '../utils/models';
 import useTaskCollection from './useTaskCollection';
+import { SERVER_URL } from '../utils/Constants'
+
 
 const MAX_TASK_PER_COLUMN = 100;
 
 function useColumnTasks(column: ColumnType) {
   const [tasks, setTasks] = useTaskCollection();
-
+  
   const columnTasks = tasks[column];
 
-  const addEmptyTask = useCallback(() => {
+  const addEmptyTask = () => {
     debug(`Adding new empty task to ${column} column`);
     setTasks((allTasks) => {
       const columnTasks = allTasks[column];
-
+      
       if (columnTasks.length > MAX_TASK_PER_COLUMN) {
         debug('Too many task!');
         return allTasks;
@@ -29,19 +32,22 @@ function useColumnTasks(column: ColumnType) {
         color: pickChakraRandomColor('.300'),
         column,
       };
-
+      axios.post(`${SERVER_URL}/${column}`, newColumnTask)
+                .catch(ex => console.error(ex));
       return {
         ...allTasks,
         [column]: [newColumnTask, ...columnTasks],
       };
-    });
-  }, [column, setTasks]);
+    })    
+  };
 
   const deleteTask = useCallback(
     (id: TaskModel['id']) => {
       debug(`Removing task ${id}..`);
       setTasks((allTasks) => {
         const columnTasks = allTasks[column];
+        axios.delete(`${SERVER_URL}/${column}/${id}`)
+                .catch(ex => console.error(ex));
         return {
           ...allTasks,
           [column]: columnTasks.filter((task) => task.id !== id),
@@ -56,6 +62,8 @@ function useColumnTasks(column: ColumnType) {
       debug(`Updating task ${id} with ${JSON.stringify(updateTask)}`);
       setTasks((allTasks) => {
         const columnTasks = allTasks[column];
+        axios.put(`${SERVER_URL}/${column}/${id}`, updatedTask)
+                    .catch(ex => console.error(ex));
         return {
           ...allTasks,
           [column]: columnTasks.map((task) =>
@@ -69,11 +77,18 @@ function useColumnTasks(column: ColumnType) {
 
   const dropTaskFrom = useCallback(
     (from: ColumnType, id: TaskModel['id']) => {
+      console.log(tasks);
+      
       setTasks((allTasks) => {
+        console.log('here');
+        
         const fromColumnTasks = allTasks[from];
         const toColumnTasks = allTasks[column];
         const movingTask = fromColumnTasks.find((task) => task.id === id);
-
+        axios.post(`${SERVER_URL}/${column}`, {...movingTask, column})
+                .catch(ex => console.error(ex));
+        axios.delete(`${SERVER_URL}/${from}/${id}`)
+                .catch(ex => console.error(ex));
         console.log(`Moving task ${movingTask?.id} from ${from} to ${column}`);
 
         if (!movingTask) {
@@ -104,6 +119,19 @@ function useColumnTasks(column: ColumnType) {
     },
     [column, setTasks],
   );
+
+  useEffect(() => {
+    axios.get(`${SERVER_URL}/db`)
+        .then(res => {
+          setTasks((allTasks) => {
+            return {
+              ...allTasks,
+              [column]: res.data[column],
+            };
+          });
+        })
+        .catch(ex => console.error(ex));
+  }, [column, setTasks])
 
   return {
     tasks: columnTasks,

@@ -9,6 +9,8 @@ function useColumnDrop(
   const [{ isOver }, dropRef] = useDrop<DragItem, void, { isOver: boolean }>({
     accept: ItemType.TASK,
     drop: (dragItem) => {
+      // console.log(dragItem, column);
+      
       if (!dragItem || dragItem.from === column) {
         return;
       }
@@ -19,7 +21,7 @@ function useColumnDrop(
       isOver: monitor.isOver(),
     }),
   });
-
+  
   return {
     isOver,
     dropRef,

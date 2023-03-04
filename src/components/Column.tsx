@@ -1,3 +1,6 @@
+import { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
 import { AddIcon } from '@chakra-ui/icons';
 import {
   Badge,
@@ -14,12 +17,13 @@ import Task from './Task';
 
 const ColumnColorScheme: Record<ColumnType, string> = {
   Todo: 'gray',
-  'In Progress': 'blue',
+  'In-Progress': 'blue',
   Blocked: 'red',
   Completed: 'green',
 };
 
-function Column({ column }: { column: ColumnType }) {
+
+function Column({ column }: {  column: ColumnType }) {
   const {
     tasks,
     addEmptyTask,
@@ -28,12 +32,14 @@ function Column({ column }: { column: ColumnType }) {
     swapTasks,
     updateTask,
   } = useColumnTasks(column);
-
+  console.log(tasks, column);
+  
   const { dropRef, isOver } = useColumnDrop(column, dropTaskFrom);
-
+  
   const ColumnTasks = tasks.map((task, index) => (
     <Task
       key={task.id}
+      column={column}
       task={task}
       index={index}
       onDropHover={swapTasks}

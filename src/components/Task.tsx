@@ -5,8 +5,11 @@ import { memo } from 'react';
 import { useTaskDragAndDrop } from '../hooks/useTaskDragAndDrop';
 import { TaskModel } from '../utils/models';
 import { AutoResizeTextarea } from './AutoResizeTextArea';
+import { Link } from 'react-router-dom'
+import { ColumnType } from '../utils/enums';
 
 type TaskProps = {
+  column: ColumnType
   index: number;
   task: TaskModel;
   onUpdate: (id: TaskModel['id'], updatedTask: TaskModel) => void;
@@ -15,6 +18,7 @@ type TaskProps = {
 };
 
 function Task({
+  column,
   index,
   task,
   onUpdate: handleUpdate,
@@ -37,6 +41,7 @@ function Task({
 
   return (
     <ScaleFade in={true} unmountOnExit>
+      
       <Box
         ref={ref}
         as="div"
@@ -84,6 +89,7 @@ function Task({
           color="gray.700"
           onChange={handleTitleChange}
         />
+        <Link to={`/task/${column}/${task.id}`}>Open</Link>
       </Box>
     </ScaleFade>
   );
