@@ -32,7 +32,6 @@ function Column({ column }: {  column: ColumnType }) {
     swapTasks,
     updateTask,
   } = useColumnTasks(column);
-  console.log(tasks, column);
   
   const { dropRef, isOver } = useColumnDrop(column, dropTaskFrom);
   

@@ -32,7 +32,7 @@ function Singlepage(){
         }
             
       }, [])
-    console.log(task, id, column);
+    // console.log(task, id, column);
     
     return (
         <main>

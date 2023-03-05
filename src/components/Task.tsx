@@ -1,5 +1,5 @@
-import { DeleteIcon } from '@chakra-ui/icons';
-import { Box, IconButton, ScaleFade } from '@chakra-ui/react';
+import { DeleteIcon, LinkIcon } from '@chakra-ui/icons';
+import { Box, IconButton, ScaleFade, Tooltip } from '@chakra-ui/react';
 import _ from 'lodash';
 import { memo } from 'react';
 import { useTaskDragAndDrop } from '../hooks/useTaskDragAndDrop';
@@ -7,6 +7,7 @@ import { TaskModel } from '../utils/models';
 import { AutoResizeTextarea } from './AutoResizeTextArea';
 import { Link } from 'react-router-dom'
 import { ColumnType } from '../utils/enums';
+import { debug } from '../utils/logging';
 
 type TaskProps = {
   column: ColumnType
@@ -39,9 +40,13 @@ function Task({
     handleDelete(task.id);
   };
 
+  const handleLinkClick = () => {
+      navigator.clipboard.writeText(location.href + `task/${column}/${task.id}`);
+      debug(`Task ${task.id} copy to clipboard`)      
+  };
+
   return (
-    <ScaleFade in={true} unmountOnExit>
-      
+    <ScaleFade in={true} unmountOnExit>      
       <Box
         ref={ref}
         as="div"
@@ -76,6 +81,24 @@ function Task({
           }}
           onClick={handleDeleteClick}
         />
+        <Tooltip hasArrow label='Copy to clipboard' placement='bottom'>
+          <IconButton
+            position="absolute"
+            top={6}
+            right={0}
+            zIndex={100}
+            aria-label="copy-task"
+            size="md"
+            colorScheme="solid"
+            color={'gray.700'}
+            icon={<LinkIcon />}
+            opacity={0}
+            _groupHover={{
+              opacity: 1,
+            }}
+            onClick={handleLinkClick}
+          />
+        </Tooltip>
         <AutoResizeTextarea
           value={task.title}
           fontWeight="semibold"

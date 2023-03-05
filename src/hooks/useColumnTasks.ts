@@ -59,7 +59,7 @@ function useColumnTasks(column: ColumnType) {
 
   const updateTask = useCallback(
     (id: TaskModel['id'], updatedTask: Omit<Partial<TaskModel>, 'id'>) => {
-      debug(`Updating task ${id} with ${JSON.stringify(updateTask)}`);
+      debug(`Updating task ${id} with ${JSON.stringify(updatedTask)}`);
       setTasks((allTasks) => {
         const columnTasks = allTasks[column];
         axios.put(`${SERVER_URL}/${column}/${id}`, updatedTask)
@@ -77,10 +77,8 @@ function useColumnTasks(column: ColumnType) {
 
   const dropTaskFrom = useCallback(
     (from: ColumnType, id: TaskModel['id']) => {
-      console.log(tasks);
       
       setTasks((allTasks) => {
-        console.log('here');
         
         const fromColumnTasks = allTasks[from];
         const toColumnTasks = allTasks[column];
@@ -89,7 +87,7 @@ function useColumnTasks(column: ColumnType) {
                 .catch(ex => console.error(ex));
         axios.delete(`${SERVER_URL}/${from}/${id}`)
                 .catch(ex => console.error(ex));
-        console.log(`Moving task ${movingTask?.id} from ${from} to ${column}`);
+        debug(`Moving task ${movingTask?.id} from ${from} to ${column}`);
 
         if (!movingTask) {
           return allTasks;
